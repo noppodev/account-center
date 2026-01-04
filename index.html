@@ -22,8 +22,10 @@
             background-color: #ffffff;
             color: var(--text-main);
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
+        /* Loading Overlay */
         .loading-screen {
             position: fixed;
             inset: 0;
@@ -42,15 +44,43 @@
             border: 3px solid var(--noppo-light-blue);
             border-bottom-color: var(--noppo-blue);
             border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
             animation: rotation 1s linear infinite;
         }
 
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Navigation */
+        .sidebar-container {
+            position: fixed;
+            top: 64px;
+            bottom: 0;
+            left: 0;
+            width: 256px;
+            background: white;
+            z-index: 40;
+            transform: translateX(-100%);
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid var(--border-color);
         }
+
+        @media (min-width: 768px) {
+            .sidebar-container { transform: translateX(0); }
+            .main-content-area { margin-left: 256px; }
+            .hamburger-btn { display: none; }
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 35;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        body.sidebar-open .sidebar-container { transform: translateX(0); }
+        body.sidebar-open .sidebar-overlay { opacity: 1; pointer-events: auto; }
 
         .sidebar-item {
             display: flex;
@@ -60,45 +90,68 @@
             border-radius: 0 24px 24px 0;
             color: var(--text-sub);
             cursor: pointer;
-            margin-right: 8px;
+            margin-right: 12px;
             transition: all 0.2s;
             font-weight: 500;
         }
-        .sidebar-item.active {
-            background-color: var(--noppo-light-blue);
-            color: var(--noppo-blue);
-        }
-        .sidebar-item:hover:not(.active) {
-            background-color: #f1f3f4;
-        }
+        .sidebar-item.active { background-color: var(--noppo-light-blue); color: var(--noppo-blue); }
+        .sidebar-item:hover:not(.active) { background-color: #f1f3f4; }
 
+        /* Card & Content */
         .card-outline {
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 24px;
-            transition: box-shadow 0.2s, border-color 0.2s;
             background: #fff;
-        }
-
-        .avatar-circle {
-            width: 100%;
-            height: 100%;
-            background-color: #f1f3f4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            color: #5f6368;
-            overflow: hidden;
+            margin-bottom: 1.5rem;
         }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .header-shadow { box-shadow: inset 0 -1px 0 0 var(--border-color); }
+        .header-shadow { border-bottom: 1px solid var(--border-color); }
 
-        /* カスタムトースト */
+        /* Sync Data Styles */
+        .sync-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-link-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: var(--text-main);
+            border: 1px solid transparent;
+        }
+        .sync-link-item:hover {
+            background-color: #f8f9fa;
+            border-color: var(--border-color);
+        }
+        .sync-link-icon {
+            color: #9aa0a6;
+            font-size: 18px;
+        }
+        .sync-link-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.875rem;
+        }
+
         #status-toast {
             position: fixed;
             bottom: 24px;
@@ -108,209 +161,223 @@
             z-index: 10000;
         }
         #status-toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Edit Mode Styles */
+        .edit-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            margin-top: 4px;
+            transition: border-color 0.2s;
+        }
+        .edit-input:focus {
+            border-color: var(--noppo-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--noppo-light-blue);
+        }
     </style>
 </head>
-<body>
+<body class="bg-white">
 
-    <!-- ローディング画面 -->
+    <!-- Loading Screen -->
     <div id="loading-screen" class="loading-screen">
-        <div class="mb-6 flex items-center gap-2">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">N</div>
-            <span class="text-2xl font-semibold tracking-tight text-gray-700">Noppo <span class="text-blue-600">Account</span></span>
+        <div class="mb-6 flex items-center gap-3">
+            <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">N</div>
+            <span class="text-3xl font-bold tracking-tight text-gray-800">Noppo <span class="text-blue-600">Account</span></span>
         </div>
-        <span class="noppo-loader"></span>
+        <div class="noppo-loader"></div>
     </div>
 
-    <!-- トースト通知 -->
-    <div id="status-toast" class="px-6 py-3 rounded-full shadow-2xl bg-gray-800 text-white text-sm font-medium flex items-center gap-2">
+    <!-- Toast -->
+    <div id="status-toast" class="px-6 py-3 rounded-full shadow-2xl bg-gray-900 text-white text-sm font-medium flex items-center gap-2">
         <span id="toast-icon" class="material-symbols-outlined text-xl text-blue-400">info</span>
         <span id="toast-message">メッセージ</span>
     </div>
 
-    <!-- ヘッダー -->
+    <!-- Mobile Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Header -->
     <header class="h-16 sticky top-0 bg-white z-50 flex items-center justify-between px-4 header-shadow">
         <div class="flex items-center gap-2">
-            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <button class="hamburger-btn p-2 hover:bg-gray-100 rounded-full" onclick="toggleSidebar()">
                 <span class="material-symbols-outlined text-gray-600">menu</span>
             </button>
-            <div class="flex items-center gap-2 ml-2 cursor-pointer" onclick="switchTab('home')">
+            <div class="flex items-center gap-2 ml-2 cursor-pointer" onclick="handleNavClick('home')">
                 <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">N</div>
                 <span class="text-xl font-medium text-gray-700 hidden sm:inline">Noppo アカウント</span>
             </div>
         </div>
-        
-        <div class="flex items-center gap-2">
-            <div id="auth-section">
-                <button id="btn-login-top" onclick="goToLogin()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-all shadow-sm">ログイン</button>
-                <div id="user-info-top" class="hidden flex items-center gap-2">
-                    <div class="w-10 h-10 rounded-full border border-gray-200 cursor-pointer overflow-hidden">
-                        <img id="nav-avatar" class="w-full h-full object-cover hidden" src="">
-                        <div id="nav-avatar-fallback" class="avatar-circle">
-                            <span class="material-symbols-outlined text-3xl">account_circle</span>
-                        </div>
-                    </div>
+        <div class="flex items-center gap-3">
+            <button id="btn-login-top" onclick="goToLogin()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-all shadow-sm">ログイン</button>
+            <div id="user-info-top" class="hidden flex items-center gap-2">
+                <div class="w-10 h-10 rounded-full border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
+                    <img id="nav-avatar" class="w-full h-full object-cover hidden">
+                    <span id="nav-avatar-fallback" class="material-symbols-outlined text-gray-400">account_circle</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="flex min-h-[calc(100vh-64px)]">
-        <!-- サイドナビ -->
-        <nav class="w-64 hidden md:block pt-4 shrink-0 border-r border-gray-100">
-            <div class="sidebar-item active" data-tab="home" onclick="switchTab('home')">
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar-container pt-4">
+            <div class="sidebar-item active" data-tab="home" onclick="handleNavClick('home')">
                 <span class="material-symbols-outlined mr-4">home</span>ホーム
             </div>
-            <div class="sidebar-item" data-tab="personal" onclick="switchTab('personal')">
+            <div class="sidebar-item" data-tab="personal" onclick="handleNavClick('personal')">
                 <span class="material-symbols-outlined mr-4">person</span>個人情報
             </div>
-            <div class="sidebar-item" data-tab="sync" onclick="switchTab('sync')">
+            <div class="sidebar-item" data-tab="sync" onclick="handleNavClick('sync')">
                 <span class="material-symbols-outlined mr-4">cloud_sync</span>デバイス同期
             </div>
-            <div class="sidebar-item" data-tab="security" onclick="switchTab('security')">
+            <div class="sidebar-item" data-tab="security" onclick="handleNavClick('security')">
                 <span class="material-symbols-outlined mr-4">security</span>セキュリティ
             </div>
-            <div class="sidebar-item" data-tab="apps" onclick="switchTab('apps')">
+            <div class="sidebar-item" data-tab="apps" onclick="handleNavClick('apps')">
                 <span class="material-symbols-outlined mr-4">apps</span>連携サービス
             </div>
-        </nav>
+            <div class="mt-8 pt-4 border-t border-gray-100">
+                <div class="sidebar-item" onclick="window.location.href='help.html'">
+                    <span class="material-symbols-outlined mr-4">help</span>ヘルプ
+                </div>
+                <div class="sidebar-item text-red-500" onclick="handleLogout()">
+                    <span class="material-symbols-outlined mr-4">logout</span>ログアウト
+                </div>
+            </div>
+        </aside>
 
-        <!-- メインコンテンツ -->
-        <main class="flex-1 overflow-y-auto px-4 py-8 md:px-12">
+        <!-- Main -->
+        <main class="main-content-area flex-1 min-h-[calc(100vh-64px)] px-4 py-8 md:px-12">
             <div class="max-w-screen-md mx-auto">
 
-                <!-- ホーム -->
+                <!-- Home Tab -->
                 <section id="tab-home" class="tab-content active">
                     <div class="text-center mb-12">
-                        <div class="w-24 h-24 mx-auto mb-4 rounded-full border border-gray-200 overflow-hidden bg-white shadow-sm">
-                            <img id="hero-avatar" class="w-full h-full object-cover hidden" src="">
-                            <div id="hero-avatar-fallback" class="avatar-circle">
-                                <span class="material-symbols-outlined text-7xl">account_circle</span>
-                            </div>
+                        <div class="w-24 h-24 mx-auto mb-6 rounded-full border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center shadow-md">
+                            <img id="hero-avatar" class="w-full h-full object-cover hidden">
+                            <span id="hero-avatar-fallback" class="material-symbols-outlined text-7xl text-gray-300">account_circle</span>
                         </div>
                         <h1 id="hero-welcome" class="text-3xl font-bold text-gray-900 mb-2">Noppo へようこそ</h1>
-                        <p id="hero-desc" class="text-gray-500">アカウント情報、同期データを一括管理できます。</p>
+                        <p class="text-gray-500">アカウント情報、セキュリティ、ブラウザの同期設定を管理します。</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="card-outline hover:shadow-md cursor-pointer flex flex-col items-center text-center transition-all" onclick="switchTab('personal')">
-                            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
-                                <span class="material-symbols-outlined text-4xl">contact_page</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="card-outline hover:border-blue-400 cursor-pointer transition-all" onclick="switchTab('personal')">
+                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined">account_box</span>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">個人情報</h3>
-                            <p class="text-sm text-gray-500 mb-4">名前やプロフィール写真など、あなたに関する基本情報を確認できます。</p>
+                            <h3 class="font-bold text-lg mb-1">個人情報</h3>
+                            <p class="text-sm text-gray-500">プロフィールの確認と変更</p>
                         </div>
-                        
-                        <div class="card-outline hover:shadow-md cursor-pointer flex flex-col items-center text-center transition-all" onclick="switchTab('sync')">
-                            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
-                                <span class="material-symbols-outlined text-4xl">sync</span>
+                        <div class="card-outline hover:border-green-400 cursor-pointer transition-all" onclick="switchTab('sync')">
+                            <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined">sync</span>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">デバイス同期</h3>
-                            <p class="text-sm text-gray-500 mb-4">ブラウザで開いているタブや履歴を他のデバイスから確認できます。</p>
+                            <h3 class="font-bold text-lg mb-1">ブラウザ同期</h3>
+                            <p class="text-sm text-gray-500">同期中のタブ・履歴・ブックマーク</p>
                         </div>
                     </div>
                 </section>
 
-                <!-- デバイス同期 -->
-                <section id="tab-sync" class="tab-content">
-                    <div class="flex items-center gap-3 mb-8">
-                        <div class="p-3 bg-blue-100 text-blue-600 rounded-2xl">
-                            <span class="material-symbols-outlined text-3xl">cloud_sync</span>
-                        </div>
-                        <div>
-                            <h2 class="text-2xl font-bold">デバイス同期</h2>
-                            <p class="text-sm text-gray-500">NoppoBrowser を使用しているデバイスの状態</p>
-                        </div>
-                    </div>
-                    
-                    <div id="sync-container" class="space-y-6">
-                        <div class="py-12 text-center text-gray-400">
-                            <p>データを読み込み中...</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 個人情報 -->
+                <!-- Personal Info Tab -->
                 <section id="tab-personal" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-8">プロフィール情報</h2>
-                    <div class="card-outline !p-0 overflow-hidden">
-                        <!-- 基本情報リスト（既存） -->
-                        <div class="px-6 py-6 border-b border-gray-100 flex items-center">
-                            <span class="w-32 text-xs font-bold text-gray-400 uppercase">プロフィール写真</span>
-                            <div class="flex-1 flex items-center justify-between">
-                                <p class="text-sm text-gray-500">写真はすべてのサービスに反映されます</p>
-                                <div class="w-14 h-14 rounded-full border border-gray-200 overflow-hidden">
-                                    <img id="profile-photo" class="w-full h-full object-cover hidden" src="">
-                                    <div id="profile-photo-fallback" class="avatar-circle">
-                                        <span class="material-symbols-outlined text-4xl">account_circle</span>
-                                    </div>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold">個人情報</h2>
+                        <button id="btn-edit-profile" onclick="toggleProfileEdit()" class="text-sm font-medium text-blue-600 px-4 py-1.5 rounded-full hover:bg-blue-50 transition-all border border-blue-200">
+                            編集する
+                        </button>
+                    </div>
+                    <div class="card-outline space-y-8">
+                        <div class="flex items-center justify-between pb-6 border-b border-gray-100">
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">プロフィール写真</p>
+                                <p id="profile-photo-desc" class="text-sm text-gray-500">写真は連携サービスで表示されます</p>
+                                <div id="edit-avatar-container" class="hidden mt-3">
+                                    <input type="text" id="input-avatar-url" placeholder="画像のURLを入力" class="edit-input">
                                 </div>
                             </div>
+                            <div class="w-16 h-16 rounded-full border-2 border-white shadow-md overflow-hidden bg-gray-50 flex items-center justify-center flex-shrink-0 ml-4">
+                                <img id="profile-photo" class="w-full h-full object-cover hidden">
+                                <span id="profile-photo-fallback" class="material-symbols-outlined text-4xl text-gray-300">account_circle</span>
+                            </div>
                         </div>
-                        <div class="px-6 py-6 border-b border-gray-100 flex items-center">
-                            <span class="w-32 text-xs font-bold text-gray-400 uppercase">名前</span>
-                            <span id="profile-name" class="flex-1 text-gray-800 font-medium text-lg">読み込み中...</span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">名前</p>
+                                <p id="profile-name" class="text-lg font-medium text-gray-800">読み込み中...</p>
+                                <div id="edit-name-container" class="hidden">
+                                    <input type="text" id="input-display-name" class="edit-input">
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">メールアドレス</p>
+                                <p id="profile-email" class="text-lg font-medium text-gray-800">読み込み中...</p>
+                                <p class="text-[10px] text-gray-400 mt-1">※ メールアドレスは変更できません</p>
+                            </div>
                         </div>
-                        <div class="px-6 py-6 flex items-center">
-                            <span class="w-32 text-xs font-bold text-gray-400 uppercase">メール</span>
-                            <span id="profile-email" class="flex-1 text-gray-800 font-medium">読み込み中...</span>
+                        <div id="edit-actions" class="hidden pt-6 border-t border-gray-100 flex gap-3">
+                            <button onclick="saveProfileChanges()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-all">保存する</button>
+                            <button onclick="toggleProfileEdit()" class="bg-gray-100 text-gray-600 px-6 py-2 rounded-lg font-bold text-sm hover:bg-gray-200 transition-all">キャンセル</button>
                         </div>
                     </div>
                 </section>
 
-                <!-- セキュリティ -->
+                <!-- Sync Tab -->
+                <section id="tab-sync" class="tab-content">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold">デバイス同期</h2>
+                        <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">同期済み</span>
+                    </div>
+                    <div id="sync-container" class="space-y-8">
+                        <!-- Devices will be rendered here -->
+                        <div class="text-center py-20 text-gray-400">
+                            <div class="noppo-loader mx-auto mb-4"></div>
+                            <p>データを同期中...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Security Tab -->
                 <section id="tab-security" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-8">セキュリティ</h2>
-                    
-                    <div class="card-outline mb-6">
-                        <h3 class="font-bold mb-6 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-blue-600">lock_reset</span>
+                    <h2 class="text-2xl font-bold mb-6">セキュリティ</h2>
+                    <div class="card-outline">
+                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2 text-gray-800">
+                            <span class="material-symbols-outlined text-blue-600">password</span>
                             パスワードの変更
                         </h3>
-                        <div class="space-y-4 max-w-sm">
+                        <div class="max-w-md space-y-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">現在のパスワード</label>
-                                <input type="password" id="input-old-pw" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all">
+                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">現在のパスワード</label>
+                                <input type="password" id="input-current-pw" placeholder="••••••••" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 transition-all">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">新しいパスワード</label>
-                                <input type="password" id="input-new-pw" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all">
+                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">新しいパスワード</label>
+                                <input type="password" id="input-new-pw" placeholder="••••••••" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 transition-all">
+                                <p class="text-[10px] text-gray-400 mt-2 px-1">※ 安全のため、記号を含む8文字以上を推奨します</p>
                             </div>
-                            <button onclick="handlePasswordChange()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm">
-                                パスワードを更新
-                            </button>
+                            <div class="pt-2">
+                                <button onclick="handlePasswordChange()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-10 py-3.5 rounded-xl font-bold text-sm shadow-xl shadow-blue-100 transition-all active:scale-95">パスワードを更新する</button>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="card-outline">
-                        <h3 class="font-bold mb-4 flex items-center gap-2 text-gray-500">
-                            <span class="material-symbols-outlined">devices</span>
-                            ログイン中のセッション
-                        </h3>
-                        <p class="text-sm text-gray-500">現在使用中のこのデバイスが管理画面にアクセスしています。</p>
                     </div>
                 </section>
 
-                <!-- 連携サービス（既存） -->
+                <!-- Apps Tab -->
                 <section id="tab-apps" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-8">連携サービス</h2>
-                    <div class="space-y-4">
-                        <!-- NoppoBrowser / NoppoDT -->
-                        <div class="card-outline flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white">
-                                <span class="material-symbols-outlined">browser_updated</span>
+                    <h2 class="text-2xl font-bold mb-6">連携済みサービス</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="card-outline flex items-center gap-4 hover:border-gray-300 transition-all cursor-default">
+                            <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                                <span class="material-symbols-outlined text-3xl">language</span>
                             </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold">NoppoBrowser</h4>
-                                <p class="text-xs text-gray-500">ブラウザの設定を同期中</p>
-                            </div>
-                        </div>
-                        <div class="card-outline flex items-center gap-4">
-                            <div class="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center text-white">
-                                <span class="material-symbols-outlined">folder_shared</span>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold">NoppoDT</h4>
-                                <p class="text-xs text-gray-500">ファイル転送サービス</p>
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-lg">NoppoBrowser</h4>
+                                <p class="text-xs text-green-600 font-bold flex items-center gap-1">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full"></span> 連携中
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -325,21 +392,21 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2YXZhc3JkeGd1cWtpaWdjeGtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0MTk5ODcsImV4cCI6MjA4Mjk5NTk4N30.CVq3lyRbxek7Ejs4tP5sN9-0JNEXSLtCsC2Pj-skFFQ";
         
         let currentUser = null;
+        let isEditingProfile = false;
 
         async function init() {
             currentUser = await loadUser();
             if (currentUser) {
                 updateUI(currentUser);
                 renderSync(currentUser.user_metadata?.sync_devices || {});
-            } else {
-                document.getElementById('profile-name').innerText = "未ログイン";
-                document.getElementById('profile-email').innerText = "ログインが必要です";
             }
             
             setTimeout(() => {
                 const loader = document.getElementById('loading-screen');
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
+                if(loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 500);
+                }
             }, 800);
         }
 
@@ -358,172 +425,235 @@
                     }
                     return data;
                 }
-            } catch (e) { console.error("Load User Error:", e); }
+            } catch (e) { console.error("API Error:", e); }
             return null;
         }
 
-        function updateUI(userData) {
-            const meta = userData.user_metadata || {};
-            const name = meta.display_name || userData.email.split('@')[0];
-            const icon = meta.avatar_url;
+        function updateUI(user) {
+            const meta = user.user_metadata || {};
+            const name = meta.display_name || user.email.split('@')[0];
+            const avatar = meta.avatar_url;
 
             document.getElementById('btn-login-top').classList.add('hidden');
             document.getElementById('user-info-top').classList.remove('hidden');
-            
-            const avatarIds = ['nav-avatar', 'hero-avatar', 'profile-photo'];
-            const fallbackIds = ['nav-avatar-fallback', 'hero-avatar-fallback', 'profile-photo-fallback'];
-
-            if (icon) {
-                avatarIds.forEach(id => {
-                    const img = document.getElementById(id);
-                    img.src = icon;
-                    img.classList.remove('hidden');
-                });
-                fallbackIds.forEach(id => document.getElementById(id).classList.add('hidden'));
-            }
 
             document.getElementById('hero-welcome').innerText = `${name} さん、ようこそ`;
             document.getElementById('profile-name').innerText = name;
-            document.getElementById('profile-email').innerText = userData.email;
+            document.getElementById('profile-email').innerText = user.email;
+
+            // 編集用フォームの初期値
+            document.getElementById('input-display-name').value = name;
+            document.getElementById('input-avatar-url').value = avatar || "";
+
+            if (avatar) {
+                ['nav-avatar', 'hero-avatar', 'profile-photo'].forEach(id => {
+                    const img = document.getElementById(id);
+                    if(img) { 
+                        img.src = avatar; 
+                        img.classList.remove('hidden'); 
+                    }
+                });
+                ['nav-avatar-fallback', 'hero-avatar-fallback', 'profile-photo-fallback'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.classList.add('hidden');
+                });
+            } else {
+                ['nav-avatar', 'hero-avatar', 'profile-photo'].forEach(id => {
+                    const img = document.getElementById(id);
+                    if(img) img.classList.add('hidden');
+                });
+                ['nav-avatar-fallback', 'hero-avatar-fallback', 'profile-photo-fallback'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.classList.remove('hidden');
+                });
+            }
         }
 
-        /**
-         * 同期データのレンダリング（履歴も含む）
-         */
-        function renderSync(devices) {
-            const container = document.getElementById('sync-container');
-            const deviceKeys = Object.keys(devices);
+        function toggleSidebar() { document.body.classList.toggle('sidebar-open'); }
 
-            if (deviceKeys.length === 0) {
-                container.innerHTML = `
-                    <div class="py-12 text-center text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                        <span class="material-symbols-outlined text-5xl mb-2">cloud_off</span>
-                        <p class="font-medium">同期データがまだありません</p>
-                        <p class="text-xs">NoppoBrowserでログインするとここに表示されます</p>
-                    </div>
-                `;
+        function handleNavClick(id) {
+            switchTab(id);
+            if (window.innerWidth < 768) toggleSidebar();
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${id}`).classList.add('active');
+            document.querySelectorAll('.sidebar-item').forEach(l => {
+                l.classList.toggle('active', l.dataset.tab === id);
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // プロフィール編集モードの切り替え
+        function toggleProfileEdit() {
+            isEditingProfile = !isEditingProfile;
+            const elements = [
+                'profile-name', 'edit-name-container', 
+                'profile-photo-desc', 'edit-avatar-container',
+                'edit-actions', 'btn-edit-profile'
+            ];
+            
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === 'btn-edit-profile') {
+                        el.classList.toggle('hidden', isEditingProfile);
+                    } else {
+                        el.classList.toggle('hidden');
+                    }
+                }
+            });
+        }
+
+        // プロフィール変更の保存
+        async function saveProfileChanges() {
+            const newName = document.getElementById('input-display-name').value.trim();
+            const newAvatar = document.getElementById('input-avatar-url').value.trim();
+
+            if (!newName) {
+                showToast("名前を入力してください", "warning");
                 return;
             }
 
-            deviceKeys.sort((a, b) => new Date(devices[b].last_sync) - new Date(devices[a].last_sync));
+            showToast("変更を同期中...", "sync");
 
-            let finalHtml = "";
-            deviceKeys.forEach(key => {
-                const dev = devices[key];
-                const lastSyncStr = new Date(dev.last_sync).toLocaleString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            try {
+                // Worker経由でSupabaseのメタデータを更新 (method: PUT)
+                const res = await fetch(`${AUTH_WORKER_URL}/auth/v1/user`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'apikey': SUPABASE_KEY 
+                    },
+                    body: JSON.stringify({ 
+                        data: { 
+                            display_name: newName, 
+                            avatar_url: newAvatar 
+                        } 
+                    })
+                });
+
+                if (res.ok) {
+                    const updatedUser = await res.json();
+                    currentUser = updatedUser;
+                    updateUI(updatedUser);
+                    showToast("プロフィールを更新しました", "check_circle");
+                    toggleProfileEdit();
+                } else {
+                    showToast("更新に失敗しました", "error");
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("通信エラーが発生しました", "error");
+            }
+        }
+
+        function renderSync(devices) {
+            const container = document.getElementById('sync-container');
+            const keys = Object.keys(devices).sort((a, b) => new Date(devices[b].last_sync) - new Date(devices[a].last_sync));
+
+            if (keys.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-20 text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                        <span class="material-symbols-outlined text-5xl mb-3">cloud_off</span>
+                        <p class="font-medium text-gray-600">同期されているデバイスがありません</p>
+                        <p class="text-xs mt-2 px-6">NoppoBrowser にログインすると、ここでお気に入りのタブや履歴を確認できるようになります。</p>
+                    </div>`;
+                return;
+            }
+
+            let html = "";
+            keys.forEach(k => {
+                const dev = devices[k];
+                const lastSync = new Date(dev.last_sync).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                 
-                // タブ
-                const tabs = dev.tabs || [];
-                const tabsHtml = tabs.length > 0 ? tabs.slice(0, 5).map(tab => `
-                    <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-white rounded cursor-pointer truncate" onclick="window.open('${tab.url}', '_blank')">
-                        <span class="material-symbols-outlined text-sm text-blue-400">tab</span>
-                        <span class="text-xs font-medium text-gray-700 truncate">${tab.title || tab.url}</span>
-                    </div>
-                `).join('') : '<p class="text-[10px] text-gray-400 italic py-2">タブはありません</p>';
-
-                // 履歴 (History)
-                const history = dev.history || [];
-                const historyHtml = history.length > 0 ? history.slice(0, 5).map(h => `
-                    <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-white rounded cursor-pointer truncate" onclick="window.open('${h.url}', '_blank')">
-                        <span class="material-symbols-outlined text-sm text-gray-400">history</span>
-                        <span class="text-xs text-gray-600 truncate">${h.title || h.url}</span>
-                    </div>
-                `).join('') : '<p class="text-[10px] text-gray-400 italic py-2">履歴はありません</p>';
-
-                finalHtml += `
-                    <div class="card-outline !p-0 overflow-hidden shadow-sm">
-                        <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-b border-gray-100">
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-blue-600 text-xl">
-                                    ${dev.name?.toLowerCase().includes('phone') ? 'smartphone' : 'laptop'}
-                                </span>
-                                <span class="font-bold text-sm text-gray-800">${dev.name || key}</span>
+                const renderCategory = (items, icon, title) => {
+                    if (!items || items.length === 0) return '';
+                    return `
+                        <div>
+                            <h5 class="sync-section-title">
+                                <span class="material-symbols-outlined !text-[14px]">${icon}</span> ${title}
+                            </h5>
+                            <div class="space-y-1">
+                                ${items.slice(0, 5).map(i => `
+                                    <a href="${i.url}" target="_blank" class="sync-link-item group">
+                                        <span class="material-symbols-outlined sync-link-icon group-hover:text-blue-500">public</span>
+                                        <span class="sync-link-text">${i.title || i.url}</span>
+                                        <span class="material-symbols-outlined !text-[14px] opacity-0 group-hover:opacity-100 transition-opacity text-blue-500">open_in_new</span>
+                                    </a>
+                                `).join('')}
+                                ${items.length > 5 ? `<div class="px-3 py-2 text-[11px] text-gray-400 font-medium">他 ${items.length - 5} 件をすべて見る</div>` : ''}
                             </div>
-                            <span class="text-[10px] text-gray-400 font-bold">同期: ${lastSyncStr}</span>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
-                            <div class="p-4">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center justify-between">
-                                    開いているタブ <span>${tabs.length}</span>
+                    `;
+                };
+
+                html += `
+                    <div class="card-outline border-l-4 border-l-blue-500 shadow-sm overflow-hidden">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-600">
+                                <span class="material-symbols-outlined text-2xl">${dev.type === 'mobile' ? 'smartphone' : 'laptop'}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-bold text-gray-800 text-lg truncate">${dev.name || k}</h4>
+                                <p class="text-[11px] text-gray-500 flex items-center gap-1">
+                                    <span class="material-symbols-outlined !text-[12px] text-green-500">sync</span> 最終同期: ${lastSync}
                                 </p>
-                                <div class="bg-gray-50/50 p-1 rounded-lg">${tabsHtml}</div>
                             </div>
-                            <div class="p-4">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">最近の履歴</p>
-                                <div class="bg-gray-50/50 p-1 rounded-lg">${historyHtml}</div>
-                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            ${renderCategory(dev.tabs, 'tab', '開いているタブ')}
+                            ${renderCategory(dev.history, 'history', '最近の履歴')}
+                            ${renderCategory(dev.bookmarks, 'star', 'ブックマーク')}
                         </div>
                     </div>
                 `;
             });
-
-            container.innerHTML = finalHtml;
+            container.innerHTML = html;
         }
 
-        /**
-         * パスワード変更処理
-         */
         async function handlePasswordChange() {
-            const oldPw = document.getElementById('input-old-pw').value;
+            const currentPw = document.getElementById('input-current-pw').value;
             const newPw = document.getElementById('input-new-pw').value;
-
-            if (!oldPw || !newPw) {
-                showToast("パスワードを入力してください", "warning");
+            
+            if (!currentPw || !newPw) {
+                showToast("すべての項目を入力してください", "warning");
                 return;
             }
-
             if (newPw.length < 6) {
-                showToast("新しいパスワードは6文字以上必要です", "warning");
+                showToast("パスワードは6文字以上にしてください", "warning");
                 return;
             }
 
-            // 本来は Worker を通じて Supabase Auth にリクエストを送ります
-            // Supabase API: PUT /auth/v1/user { password: new_password }
-            // ここでは UI 上の挙動を模倣しつつ、Workerが対応していれば実際に飛びます
+            showToast("変更を保存中...", "sync");
             try {
-                // セキュリティのため、Workerのエンドポイント経由で行う想定
                 const res = await fetch(`${AUTH_WORKER_URL}/auth/v1/user`, {
                     method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_KEY
-                        // 本来はここにAuthorizationが必要ですが、
-                        // ログイン済みならWorker側でセッションまたはCookieにより付与される設計です
-                    },
+                    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
                     body: JSON.stringify({ password: newPw })
                 });
-
+                
                 if (res.ok) {
-                    showToast("パスワードを正常に変更しました", "check_circle");
-                    document.getElementById('input-old-pw').value = "";
+                    showToast("パスワードを更新しました", "check_circle");
+                    document.getElementById('input-current-pw').value = "";
                     document.getElementById('input-new-pw').value = "";
                 } else {
-                    const err = await res.json();
-                    showToast(err.error || "パスワード変更に失敗しました", "error");
+                    showToast("更新に失敗しました。再試行してください", "error");
                 }
-            } catch (e) {
-                showToast("通信エラーが発生しました", "error");
-            }
+            } catch (e) { showToast("通信エラーが発生しました", "error"); }
+        }
+
+        function handleLogout() {
+            window.location.href = `${AUTH_WORKER_URL}/logout?redirect=${encodeURIComponent(window.location.origin + window.location.pathname)}`;
         }
 
         function showToast(msg, icon) {
             const toast = document.getElementById('status-toast');
             document.getElementById('toast-message').innerText = msg;
             document.getElementById('toast-icon').innerText = icon;
-            
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        function switchTab(id) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            const target = document.getElementById(`tab-${id}`);
-            if (target) target.classList.add('active');
-            
-            document.querySelectorAll('.sidebar-item').forEach(l => {
-                l.classList.toggle('active', l.dataset.tab === id);
-            });
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function goToLogin() {
