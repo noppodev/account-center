@@ -2,662 +2,592 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noppo Account</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Noppo Account | NoppoStudio</title>
+    
+    <!-- External Assets -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap');
-        
         :root {
-            --noppo-blue: #1a73e8;
-            --noppo-light-blue: #e8f0fe;
-            --text-main: #202124;
-            --text-sub: #5f6368;
-            --border-color: #dadce0;
+            --primary: #2563eb;
+            --primary-soft: #eff6ff;
+            --bg-main: #f8fafc;
+            --sidebar-width: 280px;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
         }
 
         body {
-            font-family: 'Inter', 'Noto Sans JP', sans-serif;
-            background-color: #ffffff;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
+            background-color: var(--bg-main);
             color: var(--text-main);
-            -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Loading Overlay */
-        .loading-screen {
-            position: fixed;
-            inset: 0;
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease-out;
-        }
-
-        .noppo-loader {
-            width: 48px;
-            height: 48px;
-            border: 3px solid var(--noppo-light-blue);
-            border-bottom-color: var(--noppo-blue);
-            border-radius: 50%;
-            animation: rotation 1s linear infinite;
-        }
-
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Navigation */
-        .sidebar-container {
-            position: fixed;
-            top: 64px;
-            bottom: 0;
-            left: 0;
-            width: 256px;
+        /* Side Navigation Styling */
+        .sidebar {
+            width: var(--sidebar-width);
             background: white;
-            z-index: 40;
-            transform: translateX(-100%);
-            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            border-right: 1px solid var(--border-color);
-        }
-
-        @media (min-width: 768px) {
-            .sidebar-container { transform: translateX(0); }
-            .main-content-area { margin-left: 256px; }
-            .hamburger-btn { display: none; }
-        }
-
-        .sidebar-overlay {
+            border-right: 1px solid var(--border);
+            height: 100vh;
             position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 35;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
+            left: 0;
+            top: 0;
+            z-index: 50;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body.sidebar-open .sidebar-container { transform: translateX(0); }
-        body.sidebar-open .sidebar-overlay { opacity: 1; pointer-events: auto; }
-
-        .sidebar-item {
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            height: 48px;
-            border-radius: 0 24px 24px 0;
-            color: var(--text-sub);
-            cursor: pointer;
-            margin-right: 12px;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-        .sidebar-item.active { background-color: var(--noppo-light-blue); color: var(--noppo-blue); }
-        .sidebar-item:hover:not(.active) { background-color: #f1f3f4; }
-
-        /* Card & Content */
-        .card-outline {
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            background: #fff;
-            margin-bottom: 1.5rem;
-        }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .header-shadow { border-bottom: 1px solid var(--border-color); }
-
-        /* Sync Data Styles */
-        .sync-section-title {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-sub);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .sync-link-item {
+        .nav-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 12px;
-            border-radius: 8px;
-            transition: background 0.2s;
-            text-decoration: none;
+            padding: 12px 16px;
+            margin: 4px 12px;
+            border-radius: 12px;
+            color: var(--text-sub);
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-main);
             color: var(--text-main);
-            border: 1px solid transparent;
-        }
-        .sync-link-item:hover {
-            background-color: #f8f9fa;
-            border-color: var(--border-color);
-        }
-        .sync-link-icon {
-            color: #9aa0a6;
-            font-size: 18px;
-        }
-        .sync-link-text {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 0.875rem;
         }
 
-        #status-toast {
+        .nav-item.active {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        /* Main Content Container */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin 0.3s;
+        }
+
+        /* Card Styling */
+        .feature-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 12px 24px -8px rgba(37, 99, 235, 0.12);
+            transform: translateY(-2px);
+        }
+
+        /* Loading Screen */
+        #loader {
             position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-            z-index: 10000;
+            inset: 0;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s;
         }
-        #status-toast.show { transform: translateX(-50%) translateY(0); }
 
-        /* Edit Mode Styles */
-        .edit-input {
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Custom Input */
+        .noppo-input {
             width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 0.95rem;
-            margin-top: 4px;
-            transition: border-color 0.2s;
-        }
-        .edit-input:focus {
-            border-color: var(--noppo-blue);
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
             outline: none;
-            box-shadow: 0 0 0 3px var(--noppo-light-blue);
+            transition: all 0.2s;
         }
+
+        .noppo-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-soft);
+        }
+
+        /* Responsive Mobile Styles */
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; }
+            .mobile-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.3);
+                backdrop-filter: blur(4px);
+                z-index: 45;
+                display: none;
+            }
+            .sidebar.open + .mobile-overlay { display: block; }
+        }
+
+        /* Tab Transitions */
+        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Toast Message */
+        #toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #1e293b;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            transform: translateY(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+        #toast.show { transform: translateY(0); }
     </style>
 </head>
-<body class="bg-white">
+<body>
 
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="mb-6 flex items-center gap-3">
-            <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">N</div>
-            <span class="text-3xl font-bold tracking-tight text-gray-800">Noppo <span class="text-blue-600">Account</span></span>
+    <!-- Loading Overlay -->
+    <div id="loader">
+        <div class="flex flex-col items-center gap-4">
+            <div class="spinner"></div>
+            <p class="text-sm font-semibold text-gray-400 uppercase tracking-widest">Noppo Account</p>
         </div>
-        <div class="noppo-loader"></div>
     </div>
 
-    <!-- Toast -->
-    <div id="status-toast" class="px-6 py-3 rounded-full shadow-2xl bg-gray-900 text-white text-sm font-medium flex items-center gap-2">
-        <span id="toast-icon" class="material-symbols-outlined text-xl text-blue-400">info</span>
-        <span id="toast-message">メッセージ</span>
-    </div>
-
-    <!-- Mobile Overlay -->
-    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-    <!-- Header -->
-    <header class="h-16 sticky top-0 bg-white z-50 flex items-center justify-between px-4 header-shadow">
-        <div class="flex items-center gap-2">
-            <button class="hamburger-btn p-2 hover:bg-gray-100 rounded-full" onclick="toggleSidebar()">
-                <span class="material-symbols-outlined text-gray-600">menu</span>
-            </button>
-            <div class="flex items-center gap-2 ml-2 cursor-pointer" onclick="handleNavClick('home')">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">N</div>
-                <span class="text-xl font-medium text-gray-700 hidden sm:inline">Noppo アカウント</span>
-            </div>
-        </div>
+    <!-- Mobile Header -->
+    <header class="lg:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-40">
         <div class="flex items-center gap-3">
-            <button id="btn-login-top" onclick="goToLogin()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-all shadow-sm">ログイン</button>
-            <div id="user-info-top" class="hidden flex items-center gap-2">
-                <div class="w-10 h-10 rounded-full border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
-                    <img id="nav-avatar" class="w-full h-full object-cover hidden">
-                    <span id="nav-avatar-fallback" class="material-symbols-outlined text-gray-400">account_circle</span>
-                </div>
-            </div>
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">N</div>
+            <span class="font-bold text-slate-800">Account</span>
         </div>
+        <button onclick="toggleMenu()" class="p-2 text-slate-600">
+            <i data-lucide="menu"></i>
+        </button>
     </header>
 
-    <div class="flex">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar-container pt-4">
-            <div class="sidebar-item active" data-tab="home" onclick="handleNavClick('home')">
-                <span class="material-symbols-outlined mr-4">home</span>ホーム
-            </div>
-            <div class="sidebar-item" data-tab="personal" onclick="handleNavClick('personal')">
-                <span class="material-symbols-outlined mr-4">person</span>個人情報
-            </div>
-            <div class="sidebar-item" data-tab="sync" onclick="handleNavClick('sync')">
-                <span class="material-symbols-outlined mr-4">cloud_sync</span>デバイス同期
-            </div>
-            <div class="sidebar-item" data-tab="security" onclick="handleNavClick('security')">
-                <span class="material-symbols-outlined mr-4">security</span>セキュリティ
-            </div>
-            <div class="sidebar-item" data-tab="apps" onclick="handleNavClick('apps')">
-                <span class="material-symbols-outlined mr-4">apps</span>連携サービス
-            </div>
-            <div class="mt-8 pt-4 border-t border-gray-100">
-                <div class="sidebar-item" onclick="window.location.href='help.html'">
-                    <span class="material-symbols-outlined mr-4">help</span>ヘルプ
-                </div>
-                <div class="sidebar-item text-red-500" onclick="handleLogout()">
-                    <span class="material-symbols-outlined mr-4">logout</span>ログアウト
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="p-8 mb-4">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl shadow-lg shadow-blue-200 flex items-center justify-center text-white font-black text-xl">N</div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-none">Noppo</h1>
+                    <p class="text-xs text-slate-400 font-medium tracking-tight">Account Services</p>
                 </div>
             </div>
-        </aside>
+        </div>
 
-        <!-- Main -->
-        <main class="main-content-area flex-1 min-h-[calc(100vh-64px)] px-4 py-8 md:px-12">
-            <div class="max-w-screen-md mx-auto">
-
-                <!-- Home Tab -->
-                <section id="tab-home" class="tab-content active">
-                    <div class="text-center mb-12">
-                        <div class="w-24 h-24 mx-auto mb-6 rounded-full border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center shadow-md">
-                            <img id="hero-avatar" class="w-full h-full object-cover hidden">
-                            <span id="hero-avatar-fallback" class="material-symbols-outlined text-7xl text-gray-300">account_circle</span>
-                        </div>
-                        <h1 id="hero-welcome" class="text-3xl font-bold text-gray-900 mb-2">Noppo へようこそ</h1>
-                        <p class="text-gray-500">アカウント情報、セキュリティ、ブラウザの同期設定を管理します。</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="card-outline hover:border-blue-400 cursor-pointer transition-all" onclick="switchTab('personal')">
-                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4">
-                                <span class="material-symbols-outlined">account_box</span>
-                            </div>
-                            <h3 class="font-bold text-lg mb-1">個人情報</h3>
-                            <p class="text-sm text-gray-500">プロフィールの確認と変更</p>
-                        </div>
-                        <div class="card-outline hover:border-green-400 cursor-pointer transition-all" onclick="switchTab('sync')">
-                            <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mb-4">
-                                <span class="material-symbols-outlined">sync</span>
-                            </div>
-                            <h3 class="font-bold text-lg mb-1">ブラウザ同期</h3>
-                            <p class="text-sm text-gray-500">同期中のタブ・履歴・ブックマーク</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Personal Info Tab -->
-                <section id="tab-personal" class="tab-content">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-2xl font-bold">個人情報</h2>
-                        <button id="btn-edit-profile" onclick="toggleProfileEdit()" class="text-sm font-medium text-blue-600 px-4 py-1.5 rounded-full hover:bg-blue-50 transition-all border border-blue-200">
-                            編集する
-                        </button>
-                    </div>
-                    <div class="card-outline space-y-8">
-                        <div class="flex items-center justify-between pb-6 border-b border-gray-100">
-                            <div class="flex-1">
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">プロフィール写真</p>
-                                <p id="profile-photo-desc" class="text-sm text-gray-500">写真は連携サービスで表示されます</p>
-                                <div id="edit-avatar-container" class="hidden mt-3">
-                                    <input type="text" id="input-avatar-url" placeholder="画像のURLを入力" class="edit-input">
-                                </div>
-                            </div>
-                            <div class="w-16 h-16 rounded-full border-2 border-white shadow-md overflow-hidden bg-gray-50 flex items-center justify-center flex-shrink-0 ml-4">
-                                <img id="profile-photo" class="w-full h-full object-cover hidden">
-                                <span id="profile-photo-fallback" class="material-symbols-outlined text-4xl text-gray-300">account_circle</span>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">名前</p>
-                                <p id="profile-name" class="text-lg font-medium text-gray-800">読み込み中...</p>
-                                <div id="edit-name-container" class="hidden">
-                                    <input type="text" id="input-display-name" class="edit-input">
-                                </div>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">メールアドレス</p>
-                                <p id="profile-email" class="text-lg font-medium text-gray-800">読み込み中...</p>
-                                <p class="text-[10px] text-gray-400 mt-1">※ メールアドレスは変更できません</p>
-                            </div>
-                        </div>
-                        <div id="edit-actions" class="hidden pt-6 border-t border-gray-100 flex gap-3">
-                            <button onclick="saveProfileChanges()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-all">保存する</button>
-                            <button onclick="toggleProfileEdit()" class="bg-gray-100 text-gray-600 px-6 py-2 rounded-lg font-bold text-sm hover:bg-gray-200 transition-all">キャンセル</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Sync Tab -->
-                <section id="tab-sync" class="tab-content">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-2xl font-bold">デバイス同期</h2>
-                        <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">同期済み</span>
-                    </div>
-                    <div id="sync-container" class="space-y-8">
-                        <!-- Devices will be rendered here -->
-                        <div class="text-center py-20 text-gray-400">
-                            <div class="noppo-loader mx-auto mb-4"></div>
-                            <p>データを同期中...</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Security Tab -->
-                <section id="tab-security" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-6">セキュリティ</h2>
-                    <div class="card-outline">
-                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2 text-gray-800">
-                            <span class="material-symbols-outlined text-blue-600">password</span>
-                            パスワードの変更
-                        </h3>
-                        <div class="max-w-md space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">現在のパスワード</label>
-                                <input type="password" id="input-current-pw" placeholder="••••••••" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">新しいパスワード</label>
-                                <input type="password" id="input-new-pw" placeholder="••••••••" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 transition-all">
-                                <p class="text-[10px] text-gray-400 mt-2 px-1">※ 安全のため、記号を含む8文字以上を推奨します</p>
-                            </div>
-                            <div class="pt-2">
-                                <button onclick="handlePasswordChange()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-10 py-3.5 rounded-xl font-bold text-sm shadow-xl shadow-blue-100 transition-all active:scale-95">パスワードを更新する</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Apps Tab -->
-                <section id="tab-apps" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-6">連携済みサービス</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="card-outline flex items-center gap-4 hover:border-gray-300 transition-all cursor-default">
-                            <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
-                                <span class="material-symbols-outlined text-3xl">language</span>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-800 text-lg">NoppoBrowser</h4>
-                                <p class="text-xs text-green-600 font-bold flex items-center gap-1">
-                                    <span class="w-2 h-2 bg-green-500 rounded-full"></span> 連携中
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
+        <nav class="flex flex-col gap-1">
+            <div class="nav-item active" data-tab="home" onclick="switchTab('home')">
+                <i data-lucide="home" class="w-5 h-5"></i><span>ホーム</span>
             </div>
-        </main>
+            <div class="nav-item" data-tab="personal" onclick="switchTab('personal')">
+                <i data-lucide="user" class="w-5 h-5"></i><span>個人情報</span>
+            </div>
+            <div class="nav-item" data-tab="sync" onclick="switchTab('sync')">
+                <i data-lucide="refresh-cw" class="w-5 h-5"></i><span>デバイス同期</span>
+            </div>
+            <div class="nav-item" data-tab="security" onclick="switchTab('security')">
+                <i data-lucide="shield-check" class="w-5 h-5"></i><span>セキュリティ</span>
+            </div>
+            <div class="nav-item" data-tab="apps" onclick="switchTab('apps')">
+                <i data-lucide="grid" class="w-5 h-5"></i><span>連携サービス</span>
+            </div>
+        </nav>
+
+        <div class="absolute bottom-8 left-0 w-full px-4">
+            <button onclick="handleLogout()" class="w-full flex items-center gap-3 p-4 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all font-semibold">
+                <i data-lucide="log-out" class="w-5 h-5"></i><span>ログアウト</span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="mobile-overlay" onclick="toggleMenu()"></div>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+        <div class="p-6 md:p-10 lg:p-16 max-w-5xl mx-auto">
+            
+            <!-- Home Section -->
+            <section id="tab-home" class="tab-content active">
+                <div class="mb-12">
+                    <h2 id="welcome-title" class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">読み込み中...</h2>
+                    <p class="text-slate-500 font-medium">アカウントのプライバシーとセキュリティをひとつの場所で管理。</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Quick Info -->
+                    <div class="feature-card flex flex-col items-start gap-4" onclick="switchTab('personal')">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+                            <i data-lucide="user-plus"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">個人情報の管理</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">名前やアバターなど、Noppo サービス全体で表示されるプロフィール情報を更新できます。</p>
+                        <span class="mt-4 text-blue-600 font-bold flex items-center gap-2 text-sm">管理画面へ <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                    </div>
+
+                    <div class="feature-card flex flex-col items-start gap-4" onclick="switchTab('sync')">
+                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
+                            <i data-lucide="laptop"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">他のデバイス</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">NoppoBrowser 等で現在開いているタブや同期済みのデバイスをリアルタイムに確認。</p>
+                        <span class="mt-4 text-indigo-600 font-bold flex items-center gap-2 text-sm">同期データを確認 <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Personal Info Section -->
+            <section id="tab-personal" class="tab-content">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">個人情報</h2>
+                    <p class="text-slate-500">Noppo サービス全体で利用される基本情報です。</p>
+                </div>
+
+                <div class="feature-card space-y-0 p-0 overflow-hidden">
+                    <div class="p-8 border-b border-slate-100 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer" onclick="openProfileModal()">
+                        <div class="flex items-center gap-6">
+                            <div class="w-20 h-20 rounded-2xl bg-slate-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center text-slate-400">
+                                <img id="info-avatar" class="w-full h-full object-cover hidden">
+                                <i id="avatar-icon" data-lucide="user" class="w-10 h-10"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">プロフィール写真</h4>
+                                <p class="text-sm text-slate-500">写真を変更してアカウントをパーソナライズ</p>
+                            </div>
+                        </div>
+                        <i data-lucide="camera" class="text-slate-300"></i>
+                    </div>
+
+                    <div class="p-8 border-b border-slate-100 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer" onclick="openProfileModal()">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">名前</h4>
+                            <p id="info-name" class="text-lg font-semibold text-slate-800">読み込み中...</p>
+                        </div>
+                        <i data-lucide="chevron-right" class="text-slate-300"></i>
+                    </div>
+
+                    <div class="p-8 flex items-center justify-between">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">メールアドレス</h4>
+                            <p id="info-email" class="text-lg font-semibold text-slate-800">読み込み中...</p>
+                        </div>
+                        <i data-lucide="mail" class="text-slate-300"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sync Section -->
+            <section id="tab-sync" class="tab-content">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">デバイス同期</h2>
+                    <p class="text-slate-500">連携済みのデバイスと開いているタブの状況です。</p>
+                </div>
+                <div id="sync-container" class="grid grid-cols-1 gap-6">
+                    <!-- Devices injected here -->
+                </div>
+            </section>
+
+            <!-- Security Section -->
+            <section id="tab-security" class="tab-content">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">セキュリティ</h2>
+                </div>
+                <div class="feature-card max-w-md">
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">新しいパスワード</label>
+                        <input type="password" id="new-pw" class="noppo-input" placeholder="••••••••">
+                    </div>
+                    <button onclick="handlePwUpdate()" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">
+                        パスワードを更新
+                    </button>
+                </div>
+            </section>
+
+            <!-- Apps Section -->
+            <section id="tab-apps" class="tab-content">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">連携中のサービス</h2>
+                    <p class="text-slate-500">Noppo アカウントで利用可能な NoppoStudio のサービス一覧です。</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <a href="https://noppodev.github.io/noppodrive" target="_blank" class="feature-card group">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i data-lucide="hard-drive"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-1">NoppoDrive</h3>
+                        <p class="text-xs text-slate-400">クラウドストレージサービス</p>
+                    </a>
+                    <a href="https://studio.noppo.f5.si" target="_blank" class="feature-card group">
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-purple-600 group-hover:text-white transition-all">
+                            <i data-lucide="globe"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-1">NoppoBrowser</h3>
+                        <p class="text-xs text-slate-400">同期可能な次世代ブラウザ</p>
+                    </a>
+                    <a href="#" target="_blank" class="feature-card group">
+                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-all">
+                            <i data-lucide="search"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-1">NexusSearch</h3>
+                        <p class="text-xs text-slate-400">インテリジェント検索サービス</p>
+                    </a>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Profile Edit Modal -->
+    <div id="profile-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeProfileModal()"></div>
+        <div class="absolute bottom-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:max-w-lg bg-white rounded-t-[32px] md:rounded-[32px] p-8 shadow-2xl">
+            <h3 class="text-2xl font-bold mb-8">プロフィールの編集</h3>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">表示名</label>
+                    <input type="text" id="edit-name" class="noppo-input" placeholder="あなたの名前">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">アバターURL</label>
+                    <input type="text" id="edit-avatar" class="noppo-input" placeholder="https://...">
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="closeProfileModal()" class="flex-1 py-4 font-bold text-slate-500 hover:bg-slate-50 rounded-2xl transition-all">キャンセル</button>
+                    <button onclick="saveProfile()" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all">保存する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast UI -->
+    <div id="toast" class="flex items-center gap-3">
+        <i id="toast-icon" data-lucide="info" class="w-5 h-5 text-blue-400"></i>
+        <span id="toast-text" class="font-bold text-sm">メッセージ</span>
     </div>
 
     <script>
-        const AUTH_WORKER_URL = "https://noppo-auth.noppo5319.workers.dev";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2YXZhc3JkeGd1cWtpaWdjeGtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0MTk5ODcsImV4cCI6MjA4Mjk5NTk4N30.CVq3lyRbxek7Ejs4tP5sN9-0JNEXSLtCsC2Pj-skFFQ";
+        const WORKER_URL = "https://noppo-auth.noppo5319.workers.dev";
+        const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2YXZhc3JkeGd1cWtpaWdjeGtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0MTk5ODcsImV4cCI6MjA4Mjk5NTk4N30.CVq3lyRbxek7Ejs4tP5sN9-0JNEXSLtCsC2Pj-skFFQ";
+        const STORAGE_KEY = "noppo_access_token";
         
         let currentUser = null;
-        let isEditingProfile = false;
 
         async function init() {
-            currentUser = await loadUser();
-            if (currentUser) {
-                updateUI(currentUser);
-                renderSync(currentUser.user_metadata?.sync_devices || {});
-            }
+            lucide.createIcons();
             
-            setTimeout(() => {
-                const loader = document.getElementById('loading-screen');
-                if(loader) {
-                    loader.style.opacity = '0';
-                    setTimeout(() => loader.style.display = 'none', 500);
-                }
-            }, 800);
-        }
-
-        async function loadUser() {
-            const params = new URLSearchParams(window.location.search);
-            const ticket = params.get('ticket');
-            const url = ticket ? `${AUTH_WORKER_URL}/auth/v1/user?ticket=${ticket}` : `${AUTH_WORKER_URL}/auth/v1/user`;
-
-            try {
-                const res = await fetch(url, { headers: { "apikey": SUPABASE_KEY } });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (ticket) {
-                        const cleanUrl = window.location.origin + window.location.pathname;
-                        window.history.replaceState({}, document.title, cleanUrl);
+            const urlParams = new URLSearchParams(window.location.search);
+            const ticket = urlParams.get('ticket');
+            
+            // 1. チケットがある場合、最優先で認証
+            if (ticket) {
+                try {
+                    const res = await fetch(`${WORKER_URL}/auth/v1/user?ticket=${ticket}`, {
+                        headers: { "apikey": API_KEY }
+                    });
+                    if (res.ok) {
+                        currentUser = await res.json();
+                        // 取得したトークンを永続化するために、チケット経由で生のトークンを取得する必要がある。
+                        // 今回は Worker 側が Authorization ヘッダーを付けてくれる仕様だが、
+                        // 永続化のために Worker からチケットの中身を特定させる or ヘッダー等で返す必要がある。
+                        // 一旦チケットをそのままトークンとして保存する仕組みにする（Worker側で ticket=xxx を Authorization に置換する仕様のため）
+                        localStorage.setItem(STORAGE_KEY, ticket);
+                        
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        showToast("ログインしました", "check");
                     }
-                    return data;
+                } catch (e) { console.error(e); }
+            } 
+            // 2. チケットがない場合、localStorageを確認
+            else {
+                const savedToken = localStorage.getItem(STORAGE_KEY);
+                if (savedToken) {
+                    try {
+                        // 保存されたトークン(チケットID)でユーザー情報を再取得
+                        const res = await fetch(`${WORKER_URL}/auth/v1/user?ticket=${savedToken}`, {
+                            headers: { "apikey": API_KEY }
+                        });
+                        if (res.ok) {
+                            currentUser = await res.json();
+                        } else {
+                            localStorage.removeItem(STORAGE_KEY);
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
                 }
-            } catch (e) { console.error("API Error:", e); }
-            return null;
+            }
+
+            if (currentUser) {
+                renderUser();
+            } else {
+                // 未ログイン状態
+                document.getElementById('welcome-title').innerText = "ログインしていません";
+            }
+
+            // Loader hide
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 500);
+            }, 600);
         }
 
-        function updateUI(user) {
-            const meta = user.user_metadata || {};
-            const name = meta.display_name || user.email.split('@')[0];
+        function renderUser() {
+            const meta = currentUser.user_metadata || {};
+            const name = meta.display_name || currentUser.email.split('@')[0];
             const avatar = meta.avatar_url;
 
-            document.getElementById('btn-login-top').classList.add('hidden');
-            document.getElementById('user-info-top').classList.remove('hidden');
-
-            document.getElementById('hero-welcome').innerText = `${name} さん、ようこそ`;
-            document.getElementById('profile-name').innerText = name;
-            document.getElementById('profile-email').innerText = user.email;
-
-            // 編集用フォームの初期値
-            document.getElementById('input-display-name').value = name;
-            document.getElementById('input-avatar-url').value = avatar || "";
+            document.getElementById('welcome-title').innerText = `${name} さん、こんにちは`;
+            document.getElementById('info-name').innerText = name;
+            document.getElementById('info-email').innerText = currentUser.email;
 
             if (avatar) {
-                ['nav-avatar', 'hero-avatar', 'profile-photo'].forEach(id => {
-                    const img = document.getElementById(id);
-                    if(img) { 
-                        img.src = avatar; 
-                        img.classList.remove('hidden'); 
-                    }
-                });
-                ['nav-avatar-fallback', 'hero-avatar-fallback', 'profile-photo-fallback'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if(el) el.classList.add('hidden');
-                });
-            } else {
-                ['nav-avatar', 'hero-avatar', 'profile-photo'].forEach(id => {
-                    const img = document.getElementById(id);
-                    if(img) img.classList.add('hidden');
-                });
-                ['nav-avatar-fallback', 'hero-avatar-fallback', 'profile-photo-fallback'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if(el) el.classList.remove('hidden');
-                });
-            }
-        }
-
-        function toggleSidebar() { document.body.classList.toggle('sidebar-open'); }
-
-        function handleNavClick(id) {
-            switchTab(id);
-            if (window.innerWidth < 768) toggleSidebar();
-        }
-
-        function switchTab(id) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab-${id}`).classList.add('active');
-            document.querySelectorAll('.sidebar-item').forEach(l => {
-                l.classList.toggle('active', l.dataset.tab === id);
-            });
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // プロフィール編集モードの切り替え
-        function toggleProfileEdit() {
-            isEditingProfile = !isEditingProfile;
-            const elements = [
-                'profile-name', 'edit-name-container', 
-                'profile-photo-desc', 'edit-avatar-container',
-                'edit-actions', 'btn-edit-profile'
-            ];
-            
-            elements.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    if (id === 'btn-edit-profile') {
-                        el.classList.toggle('hidden', isEditingProfile);
-                    } else {
-                        el.classList.toggle('hidden');
-                    }
-                }
-            });
-        }
-
-        // プロフィール変更の保存
-        async function saveProfileChanges() {
-            const newName = document.getElementById('input-display-name').value.trim();
-            const newAvatar = document.getElementById('input-avatar-url').value.trim();
-
-            if (!newName) {
-                showToast("名前を入力してください", "warning");
-                return;
+                const imgEl = document.getElementById('info-avatar');
+                const iconEl = document.getElementById('avatar-icon');
+                imgEl.src = avatar;
+                imgEl.classList.remove('hidden');
+                iconEl.classList.add('hidden');
             }
 
-            showToast("変更を同期中...", "sync");
-
-            try {
-                // Worker経由でSupabaseのメタデータを更新 (method: PUT)
-                const res = await fetch(`${AUTH_WORKER_URL}/auth/v1/user`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json', 
-                        'apikey': SUPABASE_KEY 
-                    },
-                    body: JSON.stringify({ 
-                        data: { 
-                            display_name: newName, 
-                            avatar_url: newAvatar 
-                        } 
-                    })
-                });
-
-                if (res.ok) {
-                    const updatedUser = await res.json();
-                    currentUser = updatedUser;
-                    updateUI(updatedUser);
-                    showToast("プロフィールを更新しました", "check_circle");
-                    toggleProfileEdit();
-                } else {
-                    showToast("更新に失敗しました", "error");
-                }
-            } catch (e) {
-                console.error(e);
-                showToast("通信エラーが発生しました", "error");
-            }
+            renderSyncDevices(meta.sync_devices || {});
         }
 
-        function renderSync(devices) {
+        function renderSyncDevices(devices) {
             const container = document.getElementById('sync-container');
-            const keys = Object.keys(devices).sort((a, b) => new Date(devices[b].last_sync) - new Date(devices[a].last_sync));
+            const keys = Object.keys(devices).sort((a,b) => new Date(devices[b].last_sync) - new Date(devices[a].last_sync));
 
             if (keys.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-20 text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                        <span class="material-symbols-outlined text-5xl mb-3">cloud_off</span>
-                        <p class="font-medium text-gray-600">同期されているデバイスがありません</p>
-                        <p class="text-xs mt-2 px-6">NoppoBrowser にログインすると、ここでお気に入りのタブや履歴を確認できるようになります。</p>
-                    </div>`;
+                container.innerHTML = `<div class="p-12 text-center text-slate-400 font-medium">同期データが見つかりません。</div>`;
                 return;
             }
 
-            let html = "";
-            keys.forEach(k => {
-                const dev = devices[k];
-                const lastSync = new Date(dev.last_sync).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                
-                const renderCategory = (items, icon, title) => {
-                    if (!items || items.length === 0) return '';
-                    return `
-                        <div>
-                            <h5 class="sync-section-title">
-                                <span class="material-symbols-outlined !text-[14px]">${icon}</span> ${title}
-                            </h5>
-                            <div class="space-y-1">
-                                ${items.slice(0, 5).map(i => `
-                                    <a href="${i.url}" target="_blank" class="sync-link-item group">
-                                        <span class="material-symbols-outlined sync-link-icon group-hover:text-blue-500">public</span>
-                                        <span class="sync-link-text">${i.title || i.url}</span>
-                                        <span class="material-symbols-outlined !text-[14px] opacity-0 group-hover:opacity-100 transition-opacity text-blue-500">open_in_new</span>
-                                    </a>
-                                `).join('')}
-                                ${items.length > 5 ? `<div class="px-3 py-2 text-[11px] text-gray-400 font-medium">他 ${items.length - 5} 件をすべて見る</div>` : ''}
-                            </div>
-                        </div>
-                    `;
-                };
-
-                html += `
-                    <div class="card-outline border-l-4 border-l-blue-500 shadow-sm overflow-hidden">
+            container.innerHTML = keys.map(k => {
+                const d = devices[k];
+                const date = new Date(d.last_sync).toLocaleString('ja-JP');
+                const tabs = d.tabs || [];
+                return `
+                    <div class="feature-card !cursor-default">
                         <div class="flex items-center gap-4 mb-6">
-                            <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-600">
-                                <span class="material-symbols-outlined text-2xl">${dev.type === 'mobile' ? 'smartphone' : 'laptop'}</span>
+                            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                                <i data-lucide="${d.name?.toLowerCase().includes('phone') || d.name?.toLowerCase().includes('android') ? 'smartphone' : 'monitor'}"></i>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <h4 class="font-bold text-gray-800 text-lg truncate">${dev.name || k}</h4>
-                                <p class="text-[11px] text-gray-500 flex items-center gap-1">
-                                    <span class="material-symbols-outlined !text-[12px] text-green-500">sync</span> 最終同期: ${lastSync}
-                                </p>
+                            <div>
+                                <h4 class="font-bold text-slate-900">${d.name || k}</h4>
+                                <p class="text-xs text-slate-400">最終同期: ${date}</p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            ${renderCategory(dev.tabs, 'tab', '開いているタブ')}
-                            ${renderCategory(dev.history, 'history', '最近の履歴')}
-                            ${renderCategory(dev.bookmarks, 'star', 'ブックマーク')}
+                        <div class="space-y-2">
+                            ${tabs.slice(0, 5).map(t => `
+                                <a href="${t.url}" target="_blank" class="flex items-center gap-3 p-3 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all text-sm font-medium text-slate-600 group">
+                                    <i data-lucide="globe" class="w-4 h-4 text-slate-300 group-hover:text-blue-400"></i>
+                                    <span class="truncate">${t.title || t.url}</span>
+                                </a>
+                            `).join('')}
                         </div>
                     </div>
                 `;
-            });
-            container.innerHTML = html;
+            }).join('');
+            lucide.createIcons();
         }
 
-        async function handlePasswordChange() {
-            const currentPw = document.getElementById('input-current-pw').value;
-            const newPw = document.getElementById('input-new-pw').value;
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${id}`).classList.add('active');
             
-            if (!currentPw || !newPw) {
-                showToast("すべての項目を入力してください", "warning");
-                return;
-            }
-            if (newPw.length < 6) {
-                showToast("パスワードは6文字以上にしてください", "warning");
-                return;
-            }
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === id);
+            });
 
-            showToast("変更を保存中...", "sync");
-            try {
-                const res = await fetch(`${AUTH_WORKER_URL}/auth/v1/user`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
-                    body: JSON.stringify({ password: newPw })
-                });
-                
-                if (res.ok) {
-                    showToast("パスワードを更新しました", "check_circle");
-                    document.getElementById('input-current-pw').value = "";
-                    document.getElementById('input-new-pw').value = "";
-                } else {
-                    showToast("更新に失敗しました。再試行してください", "error");
-                }
-            } catch (e) { showToast("通信エラーが発生しました", "error"); }
+            if (window.innerWidth < 1024) toggleMenu(false);
+            window.scrollTo(0, 0);
         }
 
-        function handleLogout() {
-            window.location.href = `${AUTH_WORKER_URL}/logout?redirect=${encodeURIComponent(window.location.origin + window.location.pathname)}`;
+        function toggleMenu(force) {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open', force);
+        }
+
+        function openProfileModal() {
+            if(!currentUser) { goToLogin(); return; }
+            const meta = currentUser.user_metadata || {};
+            document.getElementById('edit-name').value = meta.display_name || "";
+            document.getElementById('edit-avatar').value = meta.avatar_url || "";
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+
+        async function saveProfile() {
+            const name = document.getElementById('edit-name').value;
+            const avatar = document.getElementById('edit-avatar').value;
+            const token = localStorage.getItem(STORAGE_KEY);
+            
+            showToast("プロフィールの更新中...", "loader");
+            
+            try {
+                // チケット/トークンをAuthorizationとして渡す必要があるが、今のWorker構成だとクエリパラメータチケットが確実
+                const res = await fetch(`${WORKER_URL}/auth/v1/user?ticket=${token}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'apikey': API_KEY
+                    },
+                    body: JSON.stringify({ data: { display_name: name, avatar_url: avatar } })
+                });
+
+                if (res.ok) {
+                    currentUser = await res.json();
+                    renderUser();
+                    closeProfileModal();
+                    showToast("更新しました", "check-circle");
+                }
+            } catch (e) {
+                showToast("更新に失敗しました", "alert-circle");
+            }
         }
 
         function showToast(msg, icon) {
-            const toast = document.getElementById('status-toast');
-            document.getElementById('toast-message').innerText = msg;
-            document.getElementById('toast-icon').innerText = icon;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+            const el = document.getElementById('toast');
+            document.getElementById('toast-text').innerText = msg;
+            document.getElementById('toast-icon').setAttribute('data-lucide', icon);
+            lucide.createIcons();
+            
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        function handleLogout() {
+            localStorage.removeItem(STORAGE_KEY);
+            window.location.href = `${WORKER_URL}/logout?redirect=${encodeURIComponent(window.location.origin + window.location.pathname)}`;
         }
 
         function goToLogin() {
-            window.location.href = `${AUTH_WORKER_URL}?redirect=${encodeURIComponent(window.location.href)}`;
+            window.location.href = `${WORKER_URL}?redirect=${encodeURIComponent(window.location.href)}`;
         }
 
         window.onload = init;
