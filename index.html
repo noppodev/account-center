@@ -2,45 +2,100 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Noppo Account | NoppoStudio</title>
-    
-    <!-- External Assets -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アカウント管理 - Noppo Auth</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-soft: #eff6ff;
-            --bg-main: #f8fafc;
-            --sidebar-width: 280px;
-            --border: #e2e8f0;
-            --text-main: #0f172a;
-            --text-sub: #64748b;
+            --accent: #0052ff;
+            --accent-hover: #0040cc;
+            --danger: #ff4444;
+            --danger-hover: #cc0000;
+            --glass: rgba(255, 255, 255, 0.72);
+            --border: rgba(0, 0, 0, 0.08);
+            --text-primary: #1a1a1a;
+            --text-secondary: #6e6e73;
+            --success: #00cc00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            overflow-x: hidden;
+            background-color: #fbfbfd;
+            min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
-        /* Side Navigation Styling */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: white;
-            border-right: 1px solid var(--border);
-            height: 100vh;
+        .gradient-bg {
             position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 50;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(at 0% 0%, #e8f0ff 0%, transparent 50%),
+                        radial-gradient(at 100% 100%, #fdf2ff 0%, transparent 50%);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            gap: 24px;
+        }
+
+        /* サイドバー */
+        .sidebar {
+            width: 280px;
+            background: var(--glass);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 48px);
+            position: sticky;
+            top: 24px;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 82, 255, 0.2);
+        }
+
+        .sidebar-header h1 {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
         }
 
         .nav-item {
@@ -48,549 +103,885 @@
             align-items: center;
             gap: 12px;
             padding: 12px 16px;
-            margin: 4px 12px;
             border-radius: 12px;
-            color: var(--text-sub);
-            font-weight: 500;
-            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
             cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
         }
 
         .nav-item:hover {
-            background: var(--bg-main);
-            color: var(--text-main);
+            background: rgba(0, 82, 255, 0.08);
+            color: var(--accent);
         }
 
         .nav-item.active {
-            background: var(--primary-soft);
-            color: var(--primary);
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 82, 255, 0.2);
         }
 
-        /* Main Content Container */
-        .main-wrapper {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            transition: margin 0.3s;
+        .nav-item svg {
+            flex-shrink: 0;
         }
 
-        /* Card Styling */
-        .feature-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 24px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        .sidebar-footer {
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--danger);
+            background: rgba(255, 68, 68, 0.08);
+            border: none;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        .feature-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 12px 24px -8px rgba(37, 99, 235, 0.12);
-            transform: translateY(-2px);
+        .logout-btn:hover {
+            background: var(--danger);
+            color: white;
         }
 
-        /* Loading Screen */
-        #loader {
-            position: fixed;
-            inset: 0;
-            background: white;
-            z-index: 9999;
+        /* メインコンテンツ */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        /* アバターセクション */
+        .avatar-section {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--accent), #0066ff);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.5s;
+            color: white;
+            font-size: 36px;
+            font-weight: 800;
+            box-shadow: 0 8px 24px rgba(0, 82, 255, 0.2);
+            border: 4px solid white;
+            overflow: hidden;
         }
 
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Custom Input */
-        .noppo-input {
+        .avatar-large img {
             width: 100%;
-            padding: 12px 16px;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* フォーム */
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .input {
+            width: 100%;
+            padding: 14px 16px;
             border: 1.5px solid var(--border);
             border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.2s ease;
             outline: none;
-            transition: all 0.2s;
         }
 
-        .noppo-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px var(--primary-soft);
+        .input:focus {
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0, 82, 255, 0.1);
         }
 
-        /* Responsive Mobile Styles */
-        @media (max-width: 1024px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-wrapper { margin-left: 0; }
-            .mobile-overlay {
-                position: fixed;
-                inset: 0;
-                background: rgba(0,0,0,0.3);
-                backdrop-filter: blur(4px);
-                z-index: 45;
-                display: none;
-            }
-            .sidebar.open + .mobile-overlay { display: block; }
+        .input:disabled {
+            background: rgba(0, 0, 0, 0.04);
+            color: var(--text-secondary);
+            cursor: not-allowed;
         }
 
-        /* Tab Transitions */
-        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
 
-        /* Toast Message */
-        #toast {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            background: #1e293b;
+        /* ボタン */
+        .btn-primary {
+            padding: 14px 24px;
+            background: var(--accent);
             color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 82, 255, 0.2);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background: white;
+            color: var(--text-primary);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-danger {
+            padding: 14px 24px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.2);
+        }
+
+        /* パスワード強度 */
+        .password-strength {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .strength-bar {
+            flex: 1;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* 危険な操作カード */
+        .danger-card {
+            border: 2px solid var(--danger);
+        }
+
+        .danger-card h3 {
+            color: var(--danger);
+        }
+
+        .warning-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        /* トースト通知 */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
             padding: 16px 24px;
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-            transform: translateY(150%);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
             z-index: 1000;
         }
-        #toast.show { transform: translateY(0); }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 16px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+            }
+            
+            .sidebar-nav {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 8px;
+            }
+            
+            .nav-item {
+                white-space: nowrap;
+            }
+            
+            .avatar-section {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
-
-    <!-- Loading Overlay -->
-    <div id="loader">
-        <div class="flex flex-col items-center gap-4">
-            <div class="spinner"></div>
-            <p class="text-sm font-semibold text-gray-400 uppercase tracking-widest">Noppo Account</p>
-        </div>
-    </div>
-
-    <!-- Mobile Header -->
-    <header class="lg:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-40">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">N</div>
-            <span class="font-bold text-slate-800">Account</span>
-        </div>
-        <button onclick="toggleMenu()" class="p-2 text-slate-600">
-            <i data-lucide="menu"></i>
-        </button>
-    </header>
-
-    <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar">
-        <div class="p-8 mb-4">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl shadow-lg shadow-blue-200 flex items-center justify-center text-white font-black text-xl">N</div>
-                <div>
-                    <h1 class="font-bold text-slate-900 leading-none">Noppo</h1>
-                    <p class="text-xs text-slate-400 font-medium tracking-tight">Account Services</p>
+    <div class="gradient-bg"></div>
+    
+    <div class="container">
+        <!-- サイドバー -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+                        <path d="M2 17L12 22L22 17"/>
+                        <path d="M2 12L12 17L22 12"/>
+                    </svg>
                 </div>
+                <h1>Noppo Auth</h1>
             </div>
-        </div>
-
-        <nav class="flex flex-col gap-1">
-            <div class="nav-item active" data-tab="home" onclick="switchTab('home')">
-                <i data-lucide="home" class="w-5 h-5"></i><span>ホーム</span>
-            </div>
-            <div class="nav-item" data-tab="personal" onclick="switchTab('personal')">
-                <i data-lucide="user" class="w-5 h-5"></i><span>個人情報</span>
-            </div>
-            <div class="nav-item" data-tab="sync" onclick="switchTab('sync')">
-                <i data-lucide="refresh-cw" class="w-5 h-5"></i><span>デバイス同期</span>
-            </div>
-            <div class="nav-item" data-tab="security" onclick="switchTab('security')">
-                <i data-lucide="shield-check" class="w-5 h-5"></i><span>セキュリティ</span>
-            </div>
-            <div class="nav-item" data-tab="apps" onclick="switchTab('apps')">
-                <i data-lucide="grid" class="w-5 h-5"></i><span>連携サービス</span>
-            </div>
-        </nav>
-
-        <div class="absolute bottom-8 left-0 w-full px-4">
-            <button onclick="handleLogout()" class="w-full flex items-center gap-3 p-4 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all font-semibold">
-                <i data-lucide="log-out" class="w-5 h-5"></i><span>ログアウト</span>
-            </button>
-        </div>
-    </aside>
-
-    <div class="mobile-overlay" onclick="toggleMenu()"></div>
-
-    <!-- Main Content -->
-    <main class="main-wrapper">
-        <div class="p-6 md:p-10 lg:p-16 max-w-5xl mx-auto">
             
-            <!-- Home Section -->
-            <section id="tab-home" class="tab-content active">
-                <div class="mb-12">
-                    <h2 id="welcome-title" class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">読み込み中...</h2>
-                    <p class="text-slate-500 font-medium">アカウントのプライバシーとセキュリティをひとつの場所で管理。</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Quick Info -->
-                    <div class="feature-card flex flex-col items-start gap-4" onclick="switchTab('personal')">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
-                            <i data-lucide="user-plus"></i>
-                        </div>
-                        <h3 class="text-xl font-bold">個人情報の管理</h3>
-                        <p class="text-slate-500 text-sm leading-relaxed">名前やアバターなど、Noppo サービス全体で表示されるプロフィール情報を更新できます。</p>
-                        <span class="mt-4 text-blue-600 font-bold flex items-center gap-2 text-sm">管理画面へ <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
-                    </div>
-
-                    <div class="feature-card flex flex-col items-start gap-4" onclick="switchTab('sync')">
-                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
-                            <i data-lucide="laptop"></i>
-                        </div>
-                        <h3 class="text-xl font-bold">他のデバイス</h3>
-                        <p class="text-slate-500 text-sm leading-relaxed">NoppoBrowser 等で現在開いているタブや同期済みのデバイスをリアルタイムに確認。</p>
-                        <span class="mt-4 text-indigo-600 font-bold flex items-center gap-2 text-sm">同期データを確認 <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Personal Info Section -->
-            <section id="tab-personal" class="tab-content">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-slate-900">個人情報</h2>
-                    <p class="text-slate-500">Noppo サービス全体で利用される基本情報です。</p>
-                </div>
-
-                <div class="feature-card space-y-0 p-0 overflow-hidden">
-                    <div class="p-8 border-b border-slate-100 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer" onclick="openProfileModal()">
-                        <div class="flex items-center gap-6">
-                            <div class="w-20 h-20 rounded-2xl bg-slate-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center text-slate-400">
-                                <img id="info-avatar" class="w-full h-full object-cover hidden">
-                                <i id="avatar-icon" data-lucide="user" class="w-10 h-10"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">プロフィール写真</h4>
-                                <p class="text-sm text-slate-500">写真を変更してアカウントをパーソナライズ</p>
-                            </div>
-                        </div>
-                        <i data-lucide="camera" class="text-slate-300"></i>
-                    </div>
-
-                    <div class="p-8 border-b border-slate-100 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer" onclick="openProfileModal()">
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">名前</h4>
-                            <p id="info-name" class="text-lg font-semibold text-slate-800">読み込み中...</p>
-                        </div>
-                        <i data-lucide="chevron-right" class="text-slate-300"></i>
-                    </div>
-
-                    <div class="p-8 flex items-center justify-between">
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">メールアドレス</h4>
-                            <p id="info-email" class="text-lg font-semibold text-slate-800">読み込み中...</p>
-                        </div>
-                        <i data-lucide="mail" class="text-slate-300"></i>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Sync Section -->
-            <section id="tab-sync" class="tab-content">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-slate-900">デバイス同期</h2>
-                    <p class="text-slate-500">連携済みのデバイスと開いているタブの状況です。</p>
-                </div>
-                <div id="sync-container" class="grid grid-cols-1 gap-6">
-                    <!-- Devices injected here -->
-                </div>
-            </section>
-
-            <!-- Security Section -->
-            <section id="tab-security" class="tab-content">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-slate-900">セキュリティ</h2>
-                </div>
-                <div class="feature-card max-w-md">
-                    <div class="mb-6">
-                        <label class="block text-sm font-bold text-slate-700 mb-2">新しいパスワード</label>
-                        <input type="password" id="new-pw" class="noppo-input" placeholder="••••••••">
-                    </div>
-                    <button onclick="handlePwUpdate()" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">
-                        パスワードを更新
-                    </button>
-                </div>
-            </section>
-
-            <!-- Apps Section -->
-            <section id="tab-apps" class="tab-content">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-slate-900">連携中のサービス</h2>
-                    <p class="text-slate-500">Noppo アカウントで利用可能な NoppoStudio のサービス一覧です。</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <a href="https://noppodev.github.io/noppodrive" target="_blank" class="feature-card group">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                            <i data-lucide="hard-drive"></i>
-                        </div>
-                        <h3 class="text-lg font-bold mb-1">NoppoDrive</h3>
-                        <p class="text-xs text-slate-400">クラウドストレージサービス</p>
-                    </a>
-                    <a href="https://studio.noppo.f5.si" target="_blank" class="feature-card group">
-                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-purple-600 group-hover:text-white transition-all">
-                            <i data-lucide="globe"></i>
-                        </div>
-                        <h3 class="text-lg font-bold mb-1">NoppoBrowser</h3>
-                        <p class="text-xs text-slate-400">同期可能な次世代ブラウザ</p>
-                    </a>
-                    <a href="#" target="_blank" class="feature-card group">
-                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-all">
-                            <i data-lucide="search"></i>
-                        </div>
-                        <h3 class="text-lg font-bold mb-1">NexusSearch</h3>
-                        <p class="text-xs text-slate-400">インテリジェント検索サービス</p>
-                    </a>
-                </div>
-            </section>
-
-        </div>
-    </main>
-
-    <!-- Profile Edit Modal -->
-    <div id="profile-modal" class="fixed inset-0 z-[100] hidden">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeProfileModal()"></div>
-        <div class="absolute bottom-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:max-w-lg bg-white rounded-t-[32px] md:rounded-[32px] p-8 shadow-2xl">
-            <h3 class="text-2xl font-bold mb-8">プロフィールの編集</h3>
-            <div class="space-y-6">
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">表示名</label>
-                    <input type="text" id="edit-name" class="noppo-input" placeholder="あなたの名前">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">アバターURL</label>
-                    <input type="text" id="edit-avatar" class="noppo-input" placeholder="https://...">
-                </div>
-                <div class="flex gap-3 pt-4">
-                    <button onclick="closeProfileModal()" class="flex-1 py-4 font-bold text-slate-500 hover:bg-slate-50 rounded-2xl transition-all">キャンセル</button>
-                    <button onclick="saveProfile()" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all">保存する</button>
-                </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="profile">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    プロフィール
+                </button>
+                <button class="nav-item" data-section="security">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    セキュリティ
+                </button>
+                <button class="nav-item" data-section="danger">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    危険な操作
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    ログアウト
+                </button>
             </div>
-        </div>
-    </div>
-
-    <!-- Toast UI -->
-    <div id="toast" class="flex items-center gap-3">
-        <i id="toast-icon" data-lucide="info" class="w-5 h-5 text-blue-400"></i>
-        <span id="toast-text" class="font-bold text-sm">メッセージ</span>
-    </div>
-
-    <script>
-        const WORKER_URL = "https://noppo-auth.noppo5319.workers.dev";
-        const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2YXZhc3JkeGd1cWtpaWdjeGtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0MTk5ODcsImV4cCI6MjA4Mjk5NTk4N30.CVq3lyRbxek7Ejs4tP5sN9-0JNEXSLtCsC2Pj-skFFQ";
-        const STORAGE_KEY = "noppo_access_token";
+        </aside>
         
-        let currentUser = null;
-
-        async function init() {
-            lucide.createIcons();
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const ticket = urlParams.get('ticket');
-            
-            // 1. チケットがある場合、最優先で認証
-            if (ticket) {
-                try {
-                    const res = await fetch(`${WORKER_URL}/auth/v1/user?ticket=${ticket}`, {
-                        headers: { "apikey": API_KEY }
-                    });
-                    if (res.ok) {
-                        currentUser = await res.json();
-                        // 取得したトークンを永続化するために、チケット経由で生のトークンを取得する必要がある。
-                        // 今回は Worker 側が Authorization ヘッダーを付けてくれる仕様だが、
-                        // 永続化のために Worker からチケットの中身を特定させる or ヘッダー等で返す必要がある。
-                        // 一旦チケットをそのままトークンとして保存する仕組みにする（Worker側で ticket=xxx を Authorization に置換する仕様のため）
-                        localStorage.setItem(STORAGE_KEY, ticket);
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- プロフィールセクション -->
+            <section id="section-profile" class="content-section active">
+                <h2 class="section-title">プロフィール設定</h2>
+                
+                <div class="card">
+                    <div class="avatar-section">
+                        <div class="avatar-large" id="current-avatar">
+                            <span id="avatar-initial">?</span>
+                        </div>
+                        <div class="avatar-actions">
+                            <button class="btn-secondary" onclick="changeAvatar()">アバター変更</button>
+                            <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <form class="form" onsubmit="updateProfile(event)">
+                        <div class="form-group">
+                            <label>表示名</label>
+                            <input type="text" id="display-name" class="input" placeholder="ニックネーム">
+                        </div>
                         
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                        showToast("ログインしました", "check");
-                    }
-                } catch (e) { console.error(e); }
-            } 
-            // 2. チケットがない場合、localStorageを確認
-            else {
-                const savedToken = localStorage.getItem(STORAGE_KEY);
-                if (savedToken) {
-                    try {
-                        // 保存されたトークン(チケットID)でユーザー情報を再取得
-                        const res = await fetch(`${WORKER_URL}/auth/v1/user?ticket=${savedToken}`, {
-                            headers: { "apikey": API_KEY }
-                        });
-                        if (res.ok) {
-                            currentUser = await res.json();
-                        } else {
-                            localStorage.removeItem(STORAGE_KEY);
-                        }
-                    } catch (e) {
-                        console.error(e);
-                    }
-                }
-            }
+                        <div class="form-group">
+                            <label>メールアドレス</label>
+                            <input type="email" id="email" class="input" disabled>
+                            <small class="hint">メールアドレスを変更するにはセキュリティ設定へ</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>ユーザーID</label>
+                            <input type="text" id="user-id" class="input" disabled>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>登録日</label>
+                            <input type="text" id="created-at" class="input" disabled>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>最終ログイン</label>
+                            <input type="text" id="last-sign-in" class="input" disabled>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">変更を保存</button>
+                    </form>
+                </div>
+            </section>
+            
+            <!-- セキュリティセクション -->
+            <section id="section-security" class="content-section">
+                <h2 class="section-title">セキュリティ設定</h2>
+                
+                <div class="card">
+                    <h3>パスワード変更</h3>
+                    <form class="form" onsubmit="changePassword(event)">
+                        <div class="form-group">
+                            <label>現在のパスワード</label>
+                            <input type="password" id="current-password" class="input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>新しいパスワード</label>
+                            <input type="password" id="new-password" class="input" required oninput="checkPasswordStrength(this.value)">
+                            <div class="password-strength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strength-fill"></div>
+                                </div>
+                                <span class="strength-text" id="strength-text">強度: -</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>新しいパスワード（確認）</label>
+                            <input type="password" id="confirm-password" class="input" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">パスワードを変更</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>メールアドレス変更</h3>
+                    <form class="form" onsubmit="changeEmail(event)">
+                        <div class="form-group">
+                            <label>現在のパスワード</label>
+                            <input type="password" id="email-password" class="input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>新しいメールアドレス</label>
+                            <input type="email" id="new-email" class="input" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">メールアドレスを変更</button>
+                    </form>
+                </div>
+            </section>
+            
+            <!-- 危険な操作セクション -->
+            <section id="section-danger" class="content-section">
+                <h2 class="section-title">危険な操作</h2>
+                
+                <div class="card danger-card">
+                    <h3>アカウント削除</h3>
+                    <p class="warning-text">
+                        アカウントを削除すると、すべてのデータが永久に失われます。
+                        この操作は取り消せません。
+                    </p>
+                    
+                    <form class="form" onsubmit="deleteAccount(event)">
+                        <div class="form-group">
+                            <label>削除を確認するために「DELETE」と入力してください</label>
+                            <input type="text" id="delete-confirm" class="input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>パスワード</label>
+                            <input type="password" id="delete-password" class="input" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-danger">アカウントを削除</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- トースト通知 -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // 設定
+        const AUTH_URL = "https://noppo-auth.noppo5319.workers.dev";
+        const SUPABASE_URL = "https://vvavasrdxguqkiigcxkl.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2YXZhc3JkeGd1cWtpaWdjeGtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0MTk5ODcsImV4cCI6MjA4Mjk5NTk4N30.CVq3lyRbxek7Ejs4tP5sN9-0JNEXSLtCsC2Pj-skFFQ";
 
-            if (currentUser) {
-                renderUser();
-            } else {
-                // 未ログイン状態
-                document.getElementById('welcome-title').innerText = "ログインしていません";
-            }
+        let currentUser = null;
+        let currentTicket = null;
+        let accessToken = null;
 
-            // Loader hide
-            setTimeout(() => {
-                const loader = document.getElementById('loader');
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
-            }, 600);
-        }
-
-        function renderUser() {
-            const meta = currentUser.user_metadata || {};
-            const name = meta.display_name || currentUser.email.split('@')[0];
-            const avatar = meta.avatar_url;
-
-            document.getElementById('welcome-title').innerText = `${name} さん、こんにちは`;
-            document.getElementById('info-name').innerText = name;
-            document.getElementById('info-email').innerText = currentUser.email;
-
-            if (avatar) {
-                const imgEl = document.getElementById('info-avatar');
-                const iconEl = document.getElementById('avatar-icon');
-                imgEl.src = avatar;
-                imgEl.classList.remove('hidden');
-                iconEl.classList.add('hidden');
-            }
-
-            renderSyncDevices(meta.sync_devices || {});
-        }
-
-        function renderSyncDevices(devices) {
-            const container = document.getElementById('sync-container');
-            const keys = Object.keys(devices).sort((a,b) => new Date(devices[b].last_sync) - new Date(devices[a].last_sync));
-
-            if (keys.length === 0) {
-                container.innerHTML = `<div class="p-12 text-center text-slate-400 font-medium">同期データが見つかりません。</div>`;
+        // 初期化
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentTicket = urlParams.get('ticket');
+            
+            if (!currentTicket) {
+                // チケットがない場合、ログインページへ
+                window.location.href = AUTH_URL + '?redirect=' + encodeURIComponent(window.location.href);
                 return;
             }
-
-            container.innerHTML = keys.map(k => {
-                const d = devices[k];
-                const date = new Date(d.last_sync).toLocaleString('ja-JP');
-                const tabs = d.tabs || [];
-                return `
-                    <div class="feature-card !cursor-default">
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
-                                <i data-lucide="${d.name?.toLowerCase().includes('phone') || d.name?.toLowerCase().includes('android') ? 'smartphone' : 'monitor'}"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-900">${d.name || k}</h4>
-                                <p class="text-xs text-slate-400">最終同期: ${date}</p>
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            ${tabs.slice(0, 5).map(t => `
-                                <a href="${t.url}" target="_blank" class="flex items-center gap-3 p-3 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all text-sm font-medium text-slate-600 group">
-                                    <i data-lucide="globe" class="w-4 h-4 text-slate-300 group-hover:text-blue-400"></i>
-                                    <span class="truncate">${t.title || t.url}</span>
-                                </a>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            lucide.createIcons();
-        }
-
-        function switchTab(id) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${id}`).classList.add('active');
             
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.classList.toggle('active', el.dataset.tab === id);
-            });
-
-            if (window.innerWidth < 1024) toggleMenu(false);
-            window.scrollTo(0, 0);
+            await loadUserInfo();
+            setupNavigation();
         }
 
-        function toggleMenu(force) {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open', force);
-        }
-
-        function openProfileModal() {
-            if(!currentUser) { goToLogin(); return; }
-            const meta = currentUser.user_metadata || {};
-            document.getElementById('edit-name').value = meta.display_name || "";
-            document.getElementById('edit-avatar').value = meta.avatar_url || "";
-            document.getElementById('profile-modal').classList.remove('hidden');
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profile-modal').classList.add('hidden');
-        }
-
-        async function saveProfile() {
-            const name = document.getElementById('edit-name').value;
-            const avatar = document.getElementById('edit-avatar').value;
-            const token = localStorage.getItem(STORAGE_KEY);
-            
-            showToast("プロフィールの更新中...", "loader");
-            
+        // ユーザー情報取得
+        async function loadUserInfo() {
             try {
-                // チケット/トークンをAuthorizationとして渡す必要があるが、今のWorker構成だとクエリパラメータチケットが確実
-                const res = await fetch(`${WORKER_URL}/auth/v1/user?ticket=${token}`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'apikey': API_KEY
-                    },
-                    body: JSON.stringify({ data: { display_name: name, avatar_url: avatar } })
+                const res = await fetch(`${AUTH_URL}/auth/v1/user?ticket=${currentTicket}`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Content-Type': 'application/json'
+                    }
                 });
-
+                
                 if (res.ok) {
                     currentUser = await res.json();
-                    renderUser();
-                    closeProfileModal();
-                    showToast("更新しました", "check-circle");
+                    accessToken = currentTicket; // チケットをアクセストークンとして使用
+                    displayUserInfo();
+                } else {
+                    showToast('ユーザー情報の取得に失敗しました', 'error');
                 }
             } catch (e) {
-                showToast("更新に失敗しました", "alert-circle");
+                console.error('ユーザー情報取得エラー:', e);
+                showToast('通信エラーが発生しました', 'error');
             }
         }
 
-        function showToast(msg, icon) {
-            const el = document.getElementById('toast');
-            document.getElementById('toast-text').innerText = msg;
-            document.getElementById('toast-icon').setAttribute('data-lucide', icon);
-            lucide.createIcons();
+        // ユーザー情報表示
+        function displayUserInfo() {
+            if (!currentUser) return;
             
-            el.classList.add('show');
-            setTimeout(() => el.classList.remove('show'), 3000);
+            // 表示名
+            document.getElementById('display-name').value = currentUser.userId || '';
+            
+            // メールアドレス
+            document.getElementById('email').value = currentUser.email || '';
+            
+            // ユーザーID
+            document.getElementById('user-id').value = currentUser.raw?.id || '';
+            
+            // 登録日
+            const createdAt = currentUser.raw?.created_at ? new Date(currentUser.raw.created_at).toLocaleString('ja-JP') : '-';
+            document.getElementById('created-at').value = createdAt;
+            
+            // 最終ログイン
+            const lastSignIn = currentUser.raw?.last_sign_in_at ? new Date(currentUser.raw.last_sign_in_at).toLocaleString('ja-JP') : '-';
+            document.getElementById('last-sign-in').value = lastSignIn;
+            
+            // アバター
+            const avatarInitial = document.getElementById('avatar-initial');
+            if (currentUser.avatar) {
+                document.getElementById('current-avatar').innerHTML = 
+                    `<img src="${currentUser.avatar}" alt="アバター">`;
+            } else {
+                avatarInitial.textContent = (currentUser.userId || currentUser.email || '?').charAt(0).toUpperCase();
+            }
         }
 
-        function handleLogout() {
-            localStorage.removeItem(STORAGE_KEY);
-            window.location.href = `${WORKER_URL}/logout?redirect=${encodeURIComponent(window.location.origin + window.location.pathname)}`;
+        // ナビゲーション設定
+        function setupNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('.content-section');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const sectionId = item.dataset.section;
+                    
+                    // ナビゲーションのアクティブ状態
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // セクションの表示
+                    sections.forEach(section => section.classList.remove('active'));
+                    document.getElementById(`section-${sectionId}`).classList.add('active');
+                });
+            });
         }
 
-        function goToLogin() {
-            window.location.href = `${WORKER_URL}?redirect=${encodeURIComponent(window.location.href)}`;
+        // プロフィール更新
+        async function updateProfile(event) {
+            event.preventDefault();
+            
+            const displayName = document.getElementById('display-name').value;
+            
+            try {
+                const res = await fetch(AUTH_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'update_profile',
+                        ticket: currentTicket,
+                        displayName: displayName
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    currentUser.userId = displayName;
+                    displayUserInfo();
+                    showToast('プロフィールを更新しました', 'success');
+                } else {
+                    showToast('プロフィールの更新に失敗しました', 'error');
+                }
+            } catch (e) {
+                console.error('プロフィール更新エラー:', e);
+                showToast('通信エラーが発生しました', 'error');
+            }
         }
 
-        window.onload = init;
+        // パスワード変更
+        async function changePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (newPassword !== confirmPassword) {
+                showToast('パスワードが一致しません', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showToast('パスワードは6文字以上必要です', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch(AUTH_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'change_password',
+                        ticket: currentTicket,
+                        currentPassword: currentPassword,
+                        newPassword: newPassword
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    // フォームをリセット
+                    document.getElementById('current-password').value = '';
+                    document.getElementById('new-password').value = '';
+                    document.getElementById('confirm-password').value = '';
+                    document.getElementById('strength-fill').style.width = '0%';
+                    document.getElementById('strength-text').textContent = '強度: -';
+                    
+                    showToast('パスワードを変更しました', 'success');
+                } else {
+                    showToast(data.message || 'パスワードの変更に失敗しました', 'error');
+                }
+            } catch (e) {
+                console.error('パスワード変更エラー:', e);
+                showToast('通信エラーが発生しました', 'error');
+            }
+        }
+
+        // メールアドレス変更
+        async function changeEmail(event) {
+            event.preventDefault();
+            
+            const password = document.getElementById('email-password').value;
+            const newEmail = document.getElementById('new-email').value;
+            
+            try {
+                const res = await fetch(AUTH_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'change_email',
+                        ticket: currentTicket,
+                        password: password,
+                        newEmail: newEmail
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    // フォームをリセット
+                    document.getElementById('email-password').value = '';
+                    document.getElementById('new-email').value = '';
+                    
+                    showToast('確認メールを送信しました', 'success');
+                } else {
+                    showToast(data.message || 'メールアドレスの変更に失敗しました', 'error');
+                }
+            } catch (e) {
+                console.error('メールアドレス変更エラー:', e);
+                showToast('通信エラーが発生しました', 'error');
+            }
+        }
+
+        // パスワード強度チェック
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            const colors = ['#ff4444', '#ff8800', '#ffcc00', '#00cc00'];
+            const texts = ['低', '中', '高', '非常に高'];
+            
+            const fill = document.getElementById('strength-fill');
+            const text = document.getElementById('strength-text');
+            
+            fill.style.width = (strength * 25) + '%';
+            fill.style.backgroundColor = colors[strength];
+            text.textContent = '強度: ' + texts[strength];
+        }
+
+        // アバター変更
+        function changeAvatar() {
+            document.getElementById('avatar-input').click();
+        }
+
+        document.getElementById('avatar-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('current-avatar').innerHTML = 
+                        `<img src="${event.target.result}" alt="アバター">`;
+                    showToast('アバターを変更しました（デモ用）', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // セッション終了
+        async function revokeAllSessions() {
+            if (!confirm('すべてのセッションを終了しますか？')) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${AUTH_URL}/logout?ticket=${currentTicket}`, {
+                    method: 'GET'
+                });
+                
+                if (res.ok) {
+                    showToast('すべてのセッションを終了しました', 'success');
+                    // ログインページへ
+                    setTimeout(() => {
+                        window.location.href = AUTH_URL + '?redirect=' + encodeURIComponent(window.location.href);
+                    }, 2000);
+                } else {
+                    showToast('セッションの終了に失敗しました', 'error');
+                }
+            } catch (e) {
+                console.error('セッション終了エラー:', e);
+                showToast('通信エラーが発生しました', 'error');
+            }
+        }
+
+        // アカウント削除
+        async function deleteAccount(event) {
+            event.preventDefault();
+            
+            const confirmText = document.getElementById('delete-confirm').value;
+            const password = document.getElementById('delete-password').value;
+            
+            if (confirmText !== 'DELETE') {
+                showToast('「DELETE」と入力してください', 'error');
+                return;
+            }
+            
+            if (!confirm('本当にアカウントを削除しますか？この操作は取り消せません。')) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(AUTH_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'delete_account',
+                        ticket: currentTicket,
+                        password: password
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('アカウントを削除しました', 'success');
+                    setTimeout(() => {
+                        window.location.href = AUTH_URL;
+                    }, 2000);
+                } else {
+                    showToast(data.message || 'アカウント削除に失敗しました', 'error');
+                }
+            } catch (e) {
+                console.error('アカウント削除エラー:', e);
+                showToast('通信エラーが発生しました', 'error');
+            }
+        }
+
+        // ログアウト
+        function logout() {
+            window.location.href = `${AUTH_URL}/logout?redirect=${encodeURIComponent(window.location.origin)}`;
+        }
+
+        // トースト通知
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ページ読み込み時に初期化
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
